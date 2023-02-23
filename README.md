@@ -1,19 +1,30 @@
 
 # Coupled Parflow & Pywr model linked to MOEA.
 
-This repository contains a combined parflow-pywr model that is linked to a 
-multi-objective evolutionary algorithm (MOEA). It is used as part of the project called DRAWIT
-which has been set up to investigate how decisions on land use affect water resources.
+This repository contains a combined parflow-pywr model that is linked to a multi-objective evolutionary algorithm (MOEA). It is used as part of the project called DRAWIT which has been set up to investigate how land use decisions with regards to the type and the position of land uses in the catchent affect multiple performance criteria of catchments.
 
-## Desciption of input data used
-The simulation environment includes 5 different Parflow models in the follwing directories:
-* profile1 - Initial meteorological data ```narr_1hr.wet.txt``` provided by Stefan Kollet
-* profile2 - UK meteorolical data from Southampton - average Year
-* profile3 - UK meteorolical data from Southampton - dry Year
-* profile4 - UK meteorolical data from Southampton - wet Year
+The results of the study are published in the Journal of Hydrology in the paper: *Multicriteria land cover design in multi-sector systems via coupled distributed land and water management models* by: Tomasz Janus, James Tomlinson, Daniela Anghileri, Justin Sheffield, Stefan Kollet and Julien Harou.
 
-Path to each profile folder is provided in the model.json file in the "parflow_runner" parameter.
-Currently Parflow profile in ```profile1``` is called from ```pywr-1-reservoir-model_profile1.json```, ```profile2``` from ```pywr-1-reservoir-model_profile2.json``` and so on.
+# Installation
+
+  - for development
+      ```bash
+         pip install -r requirements.txt -e .
+      ```
+  - as a build
+      ```bash
+         pip install build .
+      ```
+      or
+      ```bash
+         python3 -m build --sdist --wheel .
+      ```
+
+## Desciption of the input data used
+The parflow model is given in the directory `input_files/parflow/profile1`:
+The meteorological forcing input is given in file ```narr_1hr.wet.txt``` provided by Prof. Stefan Kollet and representing a semi-arid environent.
+
+The pywr model is stored in `input_files/pywr/pywr-1-reservoir-model_profile1.json`
 
 ## Usage (local computer)
 ### Before running any of the code:

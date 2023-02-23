@@ -1,0 +1,350 @@
+{
+    "metadata": {
+        "title": "Parflow-Pywr-CLM-model",
+        "description": "Reservoir, hydropower, demand, Pywr model linked to Parflow semi-arid scenario",
+        "minimum_version": "1.0"
+    },
+    "timestepper": {
+        "start": "1998-09-01",
+        "end": "1999-08-31",
+        "timestep": 1
+    },
+    "nodes": [
+        {
+            "name": "supply1",
+            "type": "catchment",
+            "flow": "parflow_input1"
+        },
+        {
+            "name": "city1",
+            "type": "storage",
+            "max_volume": 70000,
+            "area": "city1_reservoir_area",
+            "initial_volume": 39900,
+            "cost": -100
+        },
+        {
+            "name": "city1_release",
+            "type": "link",
+            "max_flow": "city1_controlled_release",
+            "cost": -400
+        },
+        {
+            "name": "city1_spill",
+            "type": "link",
+            "cost": 1000
+        },
+        {
+            "name": "reservoir1",
+            "type": "storage",
+            "max_volume": 102553.0,
+            "area": "reservoir1_area",
+            "initial_volume": 75000.0,
+            "cost": -100
+        },
+        {
+            "name": "reservoir1_rainfall",
+            "type": "input",
+            "max_flow": "reservoir1_rainfall_flow",
+            "min_flow": "reservoir1_rainfall_flow",
+            "comment": "Units []"
+        },
+        {
+            "name": "reservoir1_evaporation",
+            "type": "output",
+            "cost": -1000,
+            "max_flow": "reservoir1_evaporation_flow",
+            "comment": "Units []"
+        },
+        {
+            "name": "turbine1",
+            "type": "link",
+            "max_flow": "reservoir1_controlled_release",
+            "cost": -400
+        },
+        {
+            "name": "spill1",
+            "type": "link",
+            "cost": 1000
+        },
+        {
+            "name": "estuary",
+            "type": "output"
+        }
+    ],
+    "edges": [
+        ["supply1", "city1"],
+        ["city1", "city1_release"],
+        ["city1", "city1_spill"],
+        ["city1_release", "reservoir1"],
+        ["city1_spill", "reservoir1"],
+        ["reservoir1_rainfall", "reservoir1"],
+        ["reservoir1", "reservoir1_evaporation"],
+        ["reservoir1", "turbine1"],
+        ["reservoir1", "spill1"],
+        ["spill1", "estuary"],
+        ["turbine1", "estuary"]
+    ],
+    "parameters": {
+        "city1_reservoir_area":{
+            "type":"InterpolatedVolumeParameter",
+            "node":"city1",
+            "volumes":[0.0, 36000, 40000, 43000, 46000, 49000, 52000, 55000, 58000, 61000, 64000, 67000, 70000],
+            "values":[ 0.0, 0.0, 0.0, 6.61, 12.76, 18.52, 23.96, 29.14, 34.08, 38.81, 43.37, 47.76, 52.00],
+            "kind":"linear"
+        },
+        "city1_controlled_release":{
+            "type":"ControlCurveInterpolatedParameter",
+            "storage_node":"city1",
+            "control_curves":[0.957, 0.914, 0.871, 0.829, 0.786, 0.743, 0.7, 0.657, 0.614, 0.571, 0.514],
+            "values":[13855,13366,12840,12271,11650,10964,10197,9322,8296,7039,5367,0.0,0.0]
+        }, 
+        "reservoir1_rainfall_flow":{
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "reservoir1_top_area",
+                "reservoir1_rainfall_mm_daily",
+                0.001
+            ]
+        },
+        "reservoir1_rainfall_mm_monthly":{
+            "type": "monthlyprofile",
+            "values": [1.861, 1.151, 3.396, 4.460, 3.402, 5.871, 1.216, 0.940, 1.337, 3.790, 2.505, 1.471],
+	    "comment": "Units [mm/d]"
+        },
+        "reservoir1_rainfall_mm_daily": {
+            "type": "dataframe",
+            "url": "./input_data/profile1/input_data.xlsx",
+            "index_col": "timestamp",
+            "column": "rain",
+            "comment": "Unit [mm/d]"
+        },
+        "reservoir1_evaporation_flow": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "reservoir1_area",
+                "reservoir1_evaporation_mm_daily",
+                0.001
+            ]
+        },
+        "reservoir1_evaporation_mm_monthly": {
+            "type": "monthlyprofile",
+            "values": [1.959, 3.567, 3.994, 6.070, 7.551, 7.540, 9.019, 8.327, 6.443, 4.164, 2.667, 1.724],
+            "comment": "Units [mm/d]"
+        },
+        "reservoir1_evaporation_mm_daily": {
+            "type": "dataframe",
+            "url": "./input_data/profile1/input_data.xlsx",
+            "index_col": "timestamp",
+            "column": "evaporation",
+            "comment": "Unit [mm/d]"
+        },
+        "reservoir1_area": {
+            "type": "InterpolatedVolumeParameter",
+            "node": "reservoir1",
+            "volumes": [0.0, 14650.0, 29301.0, 43951.0, 58602.0, 73252.0, 87903.0, 102553.0],
+            "values": [1875.0, 2150.0, 2440.0, 2743.0, 3062.0, 3394.0, 3741.0, 4102.0],
+            "kind": "linear"
+        },
+        "reservoir1_top_area": {
+            "type": "constant",
+            "value": 4102.0,
+            "comment": "m^2"
+        },
+        "reservoir1_level": {
+            "type": "InterpolatedVolumeParameter",
+            "node": "reservoir1",
+            "volumes": [0.0, 14650.0, 29301.0, 43951.0, 58602.0, 73252.0, 87903.0, 102553.0],
+            "values": [0.0, 5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0],
+            "kind": "linear"
+        },
+        "reservoir1_controlled_release": {
+            "type": "ControlCurveInterpolatedParameter",
+            "storage_node": "reservoir1",
+            "control_curves": [
+                0.8,
+                0.6,
+                0.4,
+                0.2
+            ],
+            "parameters": [
+                "r1_reservoir1",
+                "r2_reservoir1",
+                "r3_reservoir1",
+                "r4_reservoir1",
+                "r5_reservoir1",
+                "r6_reservoir1"
+            ]
+        }, 
+        "r1_reservoir1": {
+            "type": "constant",
+            "value": 3500.0,
+            "is_variable": {{variable_control_curve|default('false')|lower}},
+            "upper_bounds": 4200.0,
+            "lower_bounds": 0.0,
+            "comment": "m^3/day"
+        },
+        "r2_reservoir1": {
+            "type": "constant",
+            "value": 2000.0,
+            "is_variable": {{variable_control_curve|default('false')|lower}},
+            "upper_bounds": 2500.0,
+            "lower_bounds": 0.0,
+            "comment": "m^3/day"
+        },
+        "r3_reservoir1": {
+            "type": "constant",
+            "value": 1000.0,
+            "is_variable": {{variable_control_curve|default('false')|lower}},
+            "upper_bounds": 1250.0,
+            "lower_bounds": 0.0,
+            "comment": "m^3/day"
+        },
+        "r4_reservoir1": {
+            "type": "constant",
+            "value": 400.0,
+            "is_variable": {{variable_control_curve|default('false')|lower}},
+            "upper_bounds": 500.0,
+            "lower_bounds": 0.0,
+            "comment": "m^3/day"
+        },
+        "r5_reservoir1": {
+            "type": "constant",
+            "value": 150.0,
+            "is_variable": {{variable_control_curve|default('false')|lower}},
+            "upper_bounds": 250.0,
+            "lower_bounds": 0.0,
+            "comment": "m^3/day"
+        },
+        "r6_reservoir1": {
+            "type": "constant",
+            "value": 0.0,
+            "is_variable": {{variable_control_curve|default('false')|lower}},
+            "upper_bounds": 100.0,
+            "lower_bounds": 0.0,
+            "comment": "m^3/day"
+        },
+        "parflow_runner": {
+            "type": "parflowrunner",
+            "directory": "profile1",
+            "work_directory": "{{work_directory|default('parflow_jobs')}}",
+            "input_script": "profile",
+            "vegetation_coverage_filename": "drv_vegm.dat",
+            "arguments": [],
+            "vegetation_param": "parflow_landuse",
+            "remove_environments": true,
+            "dump_interval": 1
+        },
+        "parflow_input1": {
+            "type": "parflowdischarge",
+            "runner": "parflow_runner",
+            "start_from": 365,
+            "coordinates": [9, 0, 0],
+            "offset": 0
+        },
+        "parflow_et": {
+            "type": "parflowevapotranspiration",
+            "runner": "parflow_runner",
+            "offset": 0
+        },
+        "parflow_landuse": {
+            "type": "ParflowVegetation",
+            "land_use_classes": [5, 10, 12, 18],
+            "num_variable_tiles": 10,
+            "is_variable": true
+        }
+    },
+    "recorders": {
+        "landuse_diversity": {
+            "type": "ParflowVegetationDiversityRecorder",
+            "vegetation_param": "parflow_landuse",
+            "is_objective": "maximise"
+        },
+        "crop_count": {
+            "type": "ParflowCropLandTypeNumberRecorder",
+            "vegetation_param": "parflow_landuse",
+            "is_objective": "maximise"
+        },
+        "bare_soil_count": {
+            "type": "ParflowBareSoilLandTypeNumberRecorder",
+            "vegetation_param": "parflow_landuse",
+            "is_objective": "maximise"
+        },
+        "max_flooded_area":{
+            "type":"NumpyArrayAreaRecorder",
+            "node":"city1",
+            "temporal_agg_func": "max",
+            "is_objective": "minimise"
+         },
+        "turbine1_energy": {
+            "type": "TotalHydroEnergyRecorder",
+            "node": "turbine1",
+            "water_elevation_parameter": "reservoir1_level",
+            "turbine_elevation": 1.0,
+            "efficiency": 0.85,
+            "flow_unit_conversion": 1,
+            "energy_unit_conversion": 2.77778e-10,
+            "is_objective": "maximise"
+        },        
+        "downstream_fdc": {
+            "type": "FlowDurationCurveRecorder",
+            "node": "estuary",
+            "temporal_agg_func": "min",
+            "percentiles": [5, 10, 25, 50, 75, 90, 95],
+            "is_objective": null
+        },
+        "upstream_fdc": {
+            "type": "FlowDurationCurveRecorder",
+            "node": "supply1",
+            "temporal_agg_func": "max",
+            "percentiles": [5, 10, 25, 50, 75, 90, 95],
+            "is_objective": null
+        },
+        "total_parflow_outflow" : {
+            "type": "TotalFlowNodeRecorder",
+            "node": "supply1",
+            "is_objective": null
+        },
+        "total_et": {
+            "type": "numpyarrayParameter",
+            "parameter": "parflow_et",
+            "temporal_agg_func": "sum"
+        },
+        "total_discharge": {
+            "type": "numpyarrayParameter",
+            "parameter": "parflow_input1",
+            "temporal_agg_func": "sum",
+            "is_objective": null
+        },
+        "total_spill": {
+            "type": "TotalFlowNodeRecorder",
+            "node": "spill1",
+            "is_objective": null
+        },
+        "total_flow_turbine": {
+            "type": "TotalFlowNodeRecorder",
+            "node": "turbine1",
+            "is_objective": null
+        },
+        "reservoir_sdc": {
+            "type": "storagedurationcurve",
+            "node": "reservoir1",
+            "percentiles": [5, 10, 25, 50, 75, 90, 95],
+            "temporal_agg_func": "min"
+        },
+        "no_days_above_threshold": {
+            "type": "NoDaysAboveThresholdRecorder",
+            "node": "supply1",
+            "min_flow": 180,
+            "is_objective": null
+        },
+        "no_days_spill": {
+            "type": "NoDaysAboveThresholdRecorder",
+            "node": "spill1",
+            "min_flow": 1.0,
+            "is_objective": null
+        }
+    }
+}

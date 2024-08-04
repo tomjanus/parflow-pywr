@@ -3,7 +3,11 @@
 
 This repository contains a combined parflow-pywr model that is linked to a multi-objective evolutionary algorithm (MOEA). It is used as part of the project called DRAWIT which has been set up to investigate how land use decisions with regards to the type and the position of land uses in the catchent affect multiple performance criteria of catchments.
 
-The results of the study are published in the Journal of Hydrology in the paper: *Multicriteria land cover design in multi-sector systems via coupled distributed land and water management models* by: Tomasz Janus, James Tomlinson, Daniela Anghileri, Justin Sheffield, Stefan Kollet and Julien Harou.
+The results of the study are published in the **Journal of Hydrology** in the paper: 
+
+[Multicriteria land cover design in multi-sector systems via coupled distributed land and water management models](https://www.sciencedirect.com/science/article/pii/S0022169423002366) by: Tomasz Janus, James Tomlinson, Daniela Anghileri, Justin Sheffield, Stefan Kollet and Julien Harou.
+
+The results of the study can be interactively explored in the follwing [DASH Application](https://drawit-moea-results.onrender.com/)
 
 # Installation
 

@@ -1,148 +1,210 @@
+# Coupled ParFlow–Pywr Model Linked to MOEA
 
-# Coupled Parflow & Pywr model linked to MOEA.
+This repository contains a coupled **ParFlow–Pywr** model integrated with a **multi-objective evolutionary algorithm (MOEA)**. It was developed as part of the **DRAWIT** project, which investigates how land use decisions—particularly the type and spatial distribution of land use—affect multiple performance criteria in catchment systems.
 
-This repository contains a combined parflow-pywr model that is linked to a multi-objective evolutionary algorithm (MOEA). It is used as part of the project called DRAWIT which has been set up to investigate how land use decisions with regards to the type and the position of land uses in the catchent affect multiple performance criteria of catchments.
+The scientific findings are published in the **Journal of Hydrology**:
 
-The results of the study are published in the **Journal of Hydrology** in the paper: 
+📄 **[Multicriteria land cover design in multi-sector systems via coupled distributed land and water management models](https://www.sciencedirect.com/science/article/pii/S0022169423002366)**  
+*Tomasz Janus, James Tomlinson, Daniela Anghileri, Justin Sheffield, Stefan Kollet, and Julien Harou.*
 
-[Multicriteria land cover design in multi-sector systems via coupled distributed land and water management models](https://www.sciencedirect.com/science/article/pii/S0022169423002366) by: Tomasz Janus, James Tomlinson, Daniela Anghileri, Justin Sheffield, Stefan Kollet and Julien Harou.
+Explore the results interactively via this [Dash Application](https://drawit-moea-results.onrender.com/).
 
-The results of the study can be interactively explored in the follwing [DASH Application](https://drawit-moea-results.onrender.com/)
+---
 
-# Installation
+## 📦 Installation
 
-  - for development
-      ```bash
-         pip install -r requirements.txt -e .
-      ```
-  - as a build
-      ```bash
-         pip install build .
-      ```
-      or
-      ```bash
-         python3 -m build --sdist --wheel .
-      ```
-
-## Desciption of the input data used
-The parflow model is given in the directory `input_files/parflow/profile1`:
-The meteorological forcing input is given in file ```narr_1hr.wet.txt``` provided by Prof. Stefan Kollet and representing a semi-arid environent.
-
-The pywr model is stored in `input_files/pywr/pywr-1-reservoir-model_profile1.json`
-
-## Usage (local computer)
-### Before running any of the code:
-Initiate environment to work on the project by runninng:
-```sh
-$. ./init_env_drawit.sh
-```
-from project directory (set up to work only on my laptop for the moment). Remember to use "dot space dot /init..." when executing the command.
-
-### To execute one simulation run of Pywr linked to Parflow
-```sh
-$ parflow-pywr run [json-file-name] -bo [path-to-h5-file] -to [path-to-csv-file]
-```
-e.g.
-```sh
-$ parflow-pywr run pywr-1-reservoir-model_profile1.json -bo outputs1/test.h5 -to outputs1/test.csv
+For development:
+```bash
+pip install -r requirements.txt -e .
 ```
 
-### To plot the results saved to a h5 file
-```sh
-$ parflow-pywr plot -i [path-to-h5-file]
+To build and install the package:
+```bash
+pip install build .
 ```
-e.g.
-```sh
-$ parflow-pywr plot -i outputs1/test.h5
+Or:
+```bash
+python3 -m build --sdist --wheel .
 ```
 
-### To run batch simulation (number of scenarios)
+---
+
+## 📁 Input Data Description
+
+- **ParFlow input** is located in:  
+  `input_files/parflow/profile1/`  
+  It uses meteorological forcing from `narr_1hr.wet.txt`, representing a semi-arid environment (provided by Prof. Stefan Kollet).
+
+- **Pywr model** is stored in:  
+  `input_files/pywr/pywr-1-reservoir-model_profile1.json`
+
+---
+
+## 🚀 Usage (Local Computer)
+
+### 🔧 Initialize the environment
+Run from the project root:
+```bash
+. ./init_env_drawit.sh
+```
+> ⚠️ The script is currently configured for use on the developer's laptop only.
+
+---
+
+### ▶️ Run a single Pywr–ParFlow simulation
+```bash
+parflow-pywr run [input-json] -bo [output-h5-path] -to [output-csv-path]
+```
+
+Example:
+```bash
+parflow-pywr run pywr-1-reservoir-model_profile1.json -bo outputs1/test.h5 -to outputs1/test.csv
+```
+
+---
+
+### 📊 Plot results from HDF5 output
+```bash
+parflow-pywr plot -i [output-h5-path]
+```
+
+Example:
+```bash
+parflow-pywr plot -i outputs1/test.h5
+```
+
+---
+
+### 📁 Run a batch of simulations
+```bash
 parflow-pywr run pywr-1-reservoir-model_profile1.json -bo outputs_batch/test.h5 -to outputs_batch/test.csv
-
-
-### To run MOEA optimization (with results saved in individual json files) without
-NOTE: some of the commands take advantage of default parameter setting in the CLI (please consult the source code for details)
-
-1. To run with NSGA-II (to be used when objectives are either 2 or 3
-
-```sh
-$ parflow-pywr search [search-name] -h file://[directory-for-mongo-db] -d [name-of-folder-with-json-files] -w [working-dir-for-parflow-outputs] -ne [no-of-evaluations] -p [no-of-cpus] -ps [population-size] -i [input-json-file]
 ```
 
-e.g.
+---
 
-```sh
-$ parflow-pywr search optim_1 -h file://optim_results -d optim_1 -w parflow_tmp_1 -ne 50000 -p 16 -ps 40 -i pywr-1-reservoir-model_profile1.json
+## ⚙️ MOEA Optimization
+
+> ℹ️ These commands rely on default CLI parameters—refer to the source code for customization.
+
+### 🧬 NSGA-II (for 2 or 3 objectives)
+
+```bash
+parflow-pywr search [search-name] \
+    -h file://[mongo-directory] \
+    -d [json-output-dir] \
+    -w [parflow-work-dir] \
+    -ne [evaluations] \
+    -p [parallel-jobs] \
+    -ps [population-size] \
+    -i [input-json]
 ```
 
-will create a search called ```optim_1```, write all search results to folder ```optim_results``` in subfolder ```optim_1``` and use folder ```parflow_tmp_1``` as working folder for saving outputs from Parflow in each run. The search will use 50000 evaluations on 16 parallel threads and population of 40. The model used in simulations is in the JSON ```file pywr-1-reservoir-model_profile1.json```
-
-2. To run with NSGA-III (to be used for many, i.e. 4 or more objectives)
-
-```sh
-$ parflow-pywr search [search-name] -h file://[directory-for-mongo-db] -d [name-of-folder-with-json-files] -w [working-dir-for-parflow-outputs] -a NSGAIII -ne [no-of-evaluations] -p [no-of-cpus] -i [input-json-file]
+Example:
+```bash
+parflow-pywr search optim_1 \
+    -h file://optim_results \
+    -d optim_1 \
+    -w parflow_tmp_1 \
+    -ne 50000 -p 16 -ps 40 \
+    -i pywr-1-reservoir-model_profile1.json
 ```
 
-e.g.
+### 🧬 NSGA-III (for 4 or more objectives)
 
-```sh
-$ parflow-pywr search optim_1 -h file://optim_results -d optim_1 -w parflow_tmp_1 -a NSGAIII -ne 50000 -p 16 -i pywr-1-reservoir-model_profile1.json
+```bash
+parflow-pywr search [search-name] \
+    -h file://[mongo-directory] \
+    -d [json-output-dir] \
+    -w [parflow-work-dir] \
+    -a NSGAIII \
+    -ne [evaluations] \
+    -p [parallel-jobs] \
+    -i [input-json]
 ```
 
-will create a search called ```optim_1```, write all search results to folder ```optim_results``` in subfolder ```optim_1``` and use folder ```parflow_tmp_1``` as working folder for saving outputs from Parflow in each run. The search will use 50000 evaluations on 16 parallel threads. The model used in simulations is in the JSON ```file pywr-1-reservoir-model_profile1.json```
-
-## To run MOEA optimization using MPI
-
-Run the commands intdoduced in the previous paragraph by preceeding them by command 'mpirun' and, in each command, add the '--mpi' flag
-
-On laptop:
-``` sh
-$ mpirun -n 3 --oversubscribe parflow-pywr search optim_1 -h file://optim_results -d optim_1 -w parflow_tmp_1 --mpi -a NSGAII -ne 6 -p 3 -ps 2 -i pywr-1-reservoir-model_profile1.json
-``` 
-
-
-
-## Usage (CSF3 cluster)
-Copy all model files (profile folders, model .json files) and ```.sh``` job scripts to ```~/scratch`` area.
-
-### To run MOEA optimization on CSF cluster in interactive mode
-In ```~/scratch``` area type:
-```sh
-$ qrsh -l short -V -cwd ./job_interactive.sh
-```
-to run short interactive job in the current working directory
-
-### To run MOEA optimization on CSF cluster as a batch job
-```sh
-$ qsub job1.sh
+Example:
+```bash
+parflow-pywr search optim_1 \
+    -h file://optim_results \
+    -d optim_1 \
+    -w parflow_tmp_1 \
+    -a NSGAIII -ne 50000 -p 16 \
+    -i pywr-1-reservoir-model_profile1.json
 ```
 
-### To run post-optimization processing of results
+---
 
-### To run post-optimization batch simulations on selected nondominated solutions
-```
-sh 
-$ parflow-pywr run-parflow-batch [loation of config json file] [location of nondom sol. csv file]
-```
+## 🔌 Run MOEA with MPI
 
-e.g.
-```
-sh 
-$ parflow-pywr run-parflow-batch config_file_parflow_hydro.json parflow_metrics.csv
-```
+Use `mpirun` and add the `--mpi` flag:
 
-### To save the results from seleted runs into a .json file
-
-First configuration with water and energy mass balances
-```
-sh
-$ parflow-pywr read-parflow-results ./parflow_batch_jobs/ config_file_parflow_hydro.json -s 365 -f 730
-```
-Second configuration with mode water mass balance variables (evaporation components)
-```
-sh
-$ parflow-pywr read-parflow-results ./parflow_batch_jobs/ config_file_parflow_hydro_2.json -s 365 -f 730 -r results_json2
+Example (on local machine):
+```bash
+mpirun -n 3 --oversubscribe parflow-pywr search optim_1 \
+    -h file://optim_results \
+    -d optim_1 \
+    -w parflow_tmp_1 \
+    --mpi -a NSGAII -ne 6 -p 3 -ps 2 \
+    -i pywr-1-reservoir-model_profile1.json
 ```
 
+---
 
+## 🖥️ Usage on CSF3 Cluster
 
+### 🧳 Prepare
+
+Copy the model files (`profile` folders, `.json` files, and `.sh` scripts) to your `~/scratch` directory.
+
+### 🧪 Run MOEA interactively
+
+```bash
+qrsh -l short -V -cwd ./job_interactive.sh
+```
+
+### 📤 Submit MOEA batch job
+
+```bash
+qsub job1.sh
+```
+
+---
+
+## 📈 Post-Processing Results
+
+### 🧪 Run post-optimization batch simulations
+
+```bash
+parflow-pywr run-parflow-batch [config-json] [nondominated-csv]
+```
+
+Example:
+```bash
+parflow-pywr run-parflow-batch config_file_parflow_hydro.json parflow_metrics.csv
+```
+
+---
+
+### 💾 Save results to JSON
+
+#### Config 1: water and energy balances
+
+```bash
+parflow-pywr read-parflow-results ./parflow_batch_jobs/ \
+    config_file_parflow_hydro.json -s 365 -f 730
+```
+
+#### Config 2: water balance with evaporation components
+
+```bash
+parflow-pywr read-parflow-results ./parflow_batch_jobs/ \
+    config_file_parflow_hydro_2.json -s 365 -f 730 -r results_json2
+```
+
+---
+
+## 🧰 Notes and Tips
+
+- All commands assume the working directory is the project root.
+- For best performance on clusters, ensure that input/output folders are on fast storage (`scratch`, RAM disk).
+- The ParFlow model may require MPI configuration depending on your platform.
